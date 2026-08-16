@@ -198,6 +198,25 @@ async function launchHarness(): Promise<void> {
 
 type ShellLocale = 'en' | 'zh' | 'zh-Hant'
 
+/**
+ * Pin Chromium's UI locale to the shipped locale closest to the system's
+ * preferred language. A packaged app's Chromium otherwise falls back to
+ * en-US regardless of the OS language, so the web client's navigator-based
+ * auto-detection reports English even on a Chinese system. Must run before
+ * the app is ready; also drives shellLocale() and native menu role labels.
+ */
+function applySystemLocale(): void {
+  try {
+    const preferred = app.getPreferredSystemLanguages()
+    const tag = (preferred[0] ?? app.getSystemLocale()).toLowerCase()
+    if (tag.startsWith('zh')) {
+      app.commandLine.appendSwitch('lang', /hant|tw|hk|mo/.test(tag) ? 'zh-TW' : 'zh-CN')
+    }
+  } catch {
+    // Locale probing is best-effort; Chromium's default remains acceptable.
+  }
+}
+
 function shellLocale(): ShellLocale {
   const tag = app.getLocale().toLowerCase()
   if (!tag.startsWith('zh')) return 'en'
@@ -269,6 +288,12 @@ async function showRuntimeFailure(snapshot: RuntimeSnapshot): Promise<void> {
 
 function installMenu(): void {
   const checkForUpdatesLabel = shellText('检查更新…', '檢查更新…', 'Check for Updates…')
+  const restartHarnessLabel = shellText('重启 Harness', '重新啟動 Harness', 'Restart Harness')
+  const showHarnessLogLabel = shellText(
+    '显示 Harness 日志',
+    '顯示 Harness 日誌',
+    'Show Harness Log'
+  )
   const template: Electron.MenuItemConstructorOptions[] = [
     ...(process.platform === 'darwin'
       ? [
@@ -295,12 +320,12 @@ function installMenu(): void {
       label: 'Harness',
       submenu: [
         {
-          label: 'Restart Harness',
+          label: restartHarnessLabel,
           accelerator: 'CmdOrCtrl+Shift+R',
           click: () => void launchHarness().catch(showUnexpectedError)
         },
         {
-          label: 'Show Harness Log',
+          label: showHarnessLogLabel,
           click: () => shell.showItemInFolder(join(app.getPath('logs'), 'harness.log'))
         },
         ...(process.platform === 'darwin'
@@ -319,7 +344,7 @@ function installMenu(): void {
       ]
     },
     {
-      label: 'Edit',
+      label: shellText('编辑', '編輯', 'Edit'),
       submenu: [
         { role: 'undo' },
         { role: 'redo' },
@@ -331,7 +356,7 @@ function installMenu(): void {
       ]
     },
     {
-      label: 'View',
+      label: shellText('显示', '顯示', 'View'),
       submenu: [
         { role: 'reload' },
         { role: 'toggleDevTools' },
@@ -343,7 +368,10 @@ function installMenu(): void {
         { role: 'togglefullscreen' }
       ]
     },
-    { label: 'Window', submenu: [{ role: 'minimize' }, { role: 'close' }] }
+    {
+      label: shellText('窗口', '視窗', 'Window'),
+      submenu: [{ role: 'minimize' }, { role: 'close' }]
+    }
   ]
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 }
@@ -383,6 +411,7 @@ async function bootstrap(): Promise<void> {
 }
 
 configureAppIdentity()
+applySystemLocale()
 const singleInstance = app.requestSingleInstanceLock()
 if (!singleInstance) {
   app.quit()

@@ -8,7 +8,16 @@ import {
 } from './update-view'
 
 const ROOT_ID = 'dsh-desktop-update-root'
-const locale: UpdateLocale = navigator.language.toLowerCase().startsWith('zh') ? 'zh' : 'en'
+const browserTag = navigator.language.toLowerCase()
+const locale: UpdateLocale = !browserTag.startsWith('zh')
+  ? 'en'
+  : /hant|tw|hk|mo/.test(browserTag)
+    ? 'zh-Hant'
+    : 'zh'
+
+function pick(zh: string, zhHant: string, en: string): string {
+  return locale === 'zh' ? zh : locale === 'zh-Hant' ? zhHant : en
+}
 
 let host: HTMLDivElement | undefined
 let content: HTMLDivElement | undefined
@@ -68,7 +77,7 @@ function render(): void {
   const status = currentStatus
   const card = element('aside', 'card')
   card.setAttribute('aria-live', 'polite')
-  card.setAttribute('aria-label', locale === 'zh' ? 'DSH Desktop 更新' : 'DSH Desktop update')
+  card.setAttribute('aria-label', pick('DSH Desktop 更新', 'DSH Desktop 更新', 'DSH Desktop update'))
 
   const row = element('div', 'row')
   const indicator = element('span', isBusy(status) ? 'spinner' : 'dot')
@@ -102,12 +111,8 @@ function render(): void {
     const actions = element('div', 'actions')
     const install = button(
       installing
-        ? locale === 'zh'
-          ? '正在重启…'
-          : 'Restarting…'
-        : locale === 'zh'
-          ? '重新启动并安装'
-          : 'Restart and install',
+        ? pick('正在重启…', '正在重新啟動…', 'Restarting…')
+        : pick('重新启动并安装', '重新啟動並安裝', 'Restart and install'),
       'primary'
     )
     install.disabled = installing
@@ -120,7 +125,7 @@ function render(): void {
         render()
       })
     })
-    const later = button(locale === 'zh' ? '稍后' : 'Later', 'secondary')
+    const later = button(pick('稍后', '稍後', 'Later'), 'secondary')
     later.addEventListener('click', dismissCurrent)
     actions.append(install, later)
     body.appendChild(actions)
@@ -130,7 +135,7 @@ function render(): void {
 
   if (status.phase !== 'downloaded') {
     const close = button('×', 'close')
-    close.setAttribute('aria-label', locale === 'zh' ? '关闭' : 'Close')
+    close.setAttribute('aria-label', pick('关闭', '關閉', 'Close'))
     close.addEventListener('click', dismissCurrent)
     row.appendChild(close)
   }

@@ -172,9 +172,25 @@ async function launchHarness(): Promise<void> {
   await runtime.start(launchDirectory)
 }
 
+type ShellLocale = 'en' | 'zh' | 'zh-Hant'
+
+function shellLocale(): ShellLocale {
+  const tag = app.getLocale().toLowerCase()
+  if (!tag.startsWith('zh')) return 'en'
+  return /hant|tw|hk|mo/.test(tag) ? 'zh-Hant' : 'zh'
+}
+
+function shellText(zh: string, zhHant: string, en: string): string {
+  const locale = shellLocale()
+  return locale === 'zh' ? zh : locale === 'zh-Hant' ? zhHant : en
+}
+
 function showUnexpectedError(error: unknown): void {
   const message = error instanceof Error ? error.stack ?? error.message : String(error)
-  dialog.showErrorBox('DSH Desktop encountered an error', message)
+  dialog.showErrorBox(
+    shellText('DSH Desktop 遇到错误', 'DSH Desktop 遇到錯誤', 'DSH Desktop encountered an error'),
+    message
+  )
 }
 
 async function showRuntimeFailure(snapshot: RuntimeSnapshot): Promise<void> {
@@ -183,14 +199,23 @@ async function showRuntimeFailure(snapshot: RuntimeSnapshot): Promise<void> {
 
   try {
     while (!quitting && runtime.snapshot().phase === 'failed') {
+      const hint = shellText(
+        '可以重试或查看 Harness 日志。',
+        '可以重試或查看 Harness 日誌。',
+        'You can retry or inspect the Harness log.'
+      )
       const options: MessageBoxOptions = {
         type: 'error',
-        title: 'Harness could not start',
+        title: shellText('Harness 无法启动', 'Harness 無法啟動', 'Harness could not start'),
         message: snapshot.message,
         detail: snapshot.launchDirectory
-          ? `Launch directory: ${snapshot.launchDirectory}\n\nYou can retry or inspect the Harness log.`
-          : 'You can retry or inspect the Harness log.',
-        buttons: ['Retry', 'Show Log', 'Quit'],
+          ? `${shellText('启动目录', '啟動目錄', 'Launch directory')}: ${snapshot.launchDirectory}\n\n${hint}`
+          : hint,
+        buttons: [
+          shellText('重试', '重試', 'Retry'),
+          shellText('查看日志', '查看日誌', 'Show Log'),
+          shellText('退出', '退出', 'Quit')
+        ],
         defaultId: 0,
         cancelId: 2,
         noLink: true
@@ -219,9 +244,7 @@ async function showRuntimeFailure(snapshot: RuntimeSnapshot): Promise<void> {
 }
 
 function installMenu(): void {
-  const checkForUpdatesLabel = app.getLocale().toLowerCase().startsWith('zh')
-    ? '检查更新…'
-    : 'Check for Updates…'
+  const checkForUpdatesLabel = shellText('检查更新…', '檢查更新…', 'Check for Updates…')
   const template: Electron.MenuItemConstructorOptions[] = [
     ...(process.platform === 'darwin'
       ? [

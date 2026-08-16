@@ -1,0 +1,253 @@
+diff --git a/node_modules/@deepseek-ai/dsh-client-locale/lib/client.js b/node_modules/@deepseek-ai/dsh-client-locale/lib/client.js
+index 6b25606..a9f7828 100644
+--- a/node_modules/@deepseek-ai/dsh-client-locale/lib/client.js
++++ b/node_modules/@deepseek-ai/dsh-client-locale/lib/client.js
+@@ -807,7 +807,7 @@ window.__ModuleLoader__.load({
+ 		/** Field carrying an explicit locale selection; absence delegates to the browser. */
+ 		const LOCALE_PREFERENCE_FIELD = "preference";
+ 		/** Locale identifiers shipped by the browser client. */
+-		const LOCALE_IDS = ["zh", "en"];
++		const LOCALE_IDS = ["zh", "zh-Hant", "en"];
+ 		Schema.object({ [LOCALE_PREFERENCE_FIELD]: Schema.union([...LOCALE_IDS]).required(false) });
+ 		//#endregion
+ 		//#region lib/types/locales/zh.js
+@@ -871,9 +871,9 @@ window.__ModuleLoader__.load({
+ 		//#region lib/types/locales/settings.js
+ 		/** `settings.locale` namespace dictionaries (the Language row's copy). */
+ 		/** Simplified Chinese dictionary (the key-set source of truth). */
+-		const zh = { "language.title": "语言" };
++		const zh = { "language.title": "语言", "language.auto": "自动检测" };
+ 		/** English dictionary, checked complete against the zh key set. */
+-		const en = { "language.title": "Language" };
++		const en = { "language.title": "Language", "language.auto": "Auto" };
+ 		//#endregion
+ 		//#region \0dsh-css:/home/runner/work/deepseek-harness/deepseek-harness/packages/client/locale/src/client/LanguageRow.module.css.mjs
+ 		const css = ".hVGvvW_row{border-bottom:1px solid var(--dsw-alias-border-l2);align-items:center;gap:8px;padding:16px 0;display:flex}.hVGvvW_rowText{flex-direction:column;flex:1;gap:4px;min-width:0;padding-right:48px;display:flex}.hVGvvW_title{color:var(--dsw-alias-label-primary);font-size:14px;font-weight:400;line-height:22px}.hVGvvW_selector{background:var(--dsw-alias-bg-module-platform);height:36px;font:inherit;color:var(--dsw-alias-label-primary);cursor:pointer;border:none;border-radius:18px;align-items:center;gap:12px;padding:0 14px;font-size:14px;line-height:22px;display:inline-flex}.hVGvvW_selector:hover{background:var(--dsw-alias-interactive-bg-hover)}.hVGvvW_chevron{flex:none}";
+@@ -907,9 +907,10 @@ window.__ModuleLoader__.load({
+ 		*/
+ 		function LanguageRow({ t, setLocale, useStore }) {
+ 			const active = useStore((s) => s.active);
++			const explicit = useStore((s) => s.explicit);
+ 			const options = useStore((s) => s.options);
+ 			const [open, setOpen] = (0, react.useState)(false);
+-			const activeLabel = options.find((o) => o.id === active)?.label ?? active;
++			const activeLabel = explicit ? options.find((o) => o.id === active)?.label ?? active : t("language.auto");
+ 			return (0, react_jsx_runtime.jsxs)("div", {
+ 				className: LanguageRow_module_css_default.row,
+ 				children: [(0, react_jsx_runtime.jsx)("div", {
+@@ -923,11 +924,14 @@ window.__ModuleLoader__.load({
+ 					onClose: () => {
+ 						setOpen(false);
+ 					},
+-					items: options.map((o) => ({
++					items: [{
++						id: "auto",
++						label: t("language.auto")
++					}, ...options.map((o) => ({
+ 						id: o.id,
+ 						label: o.label
+-					})),
+-					selectedId: active,
++					}))],
++					selectedId: explicit ? active : "auto",
+ 					onSelect: (id) => {
+ 						setLocale(id);
+ 						setOpen(false);
+@@ -962,12 +966,14 @@ window.__ModuleLoader__.load({
+ 			return (0, _deepseek_ai_dsh_client_runtime_client.defineStore)({
+ 				init: () => ({
+ 					active: "",
++					explicit: false,
+ 					options: [],
+ 					revision: -1
+ 				}),
+-				actions: { sync: (d, active, options, revision) => {
++				actions: { sync: (d, active, explicit, options, revision) => {
+ 					if (revision <= d.revision) return;
+ 					d.active = active;
++					d.explicit = explicit;
+ 					d.options = options;
+ 					d.revision = revision;
+ 				} }
+@@ -981,14 +987,28 @@ window.__ModuleLoader__.load({
+ 		const COMMON_NS = "common";
+ 		/** Namespace owning this feature's settings-row copy. */
+ 		const SETTINGS_NS = "settings.locale";
+-		/** The two shipped locales. */
+-		const LOCALES = Object.freeze([{
+-			id: "zh",
+-			label: "中文"
+-		}, {
+-			id: "en",
+-			label: "English"
+-		}]);
++		/** The shipped locales (an absent preference means browser auto-detection). */
++					const LOCALES = Object.freeze([{
++						id: "zh",
++						label: "简体中文"
++					}, {
++						id: "zh-Hant",
++						label: "繁體中文"
++					}, {
++						id: "en",
++						label: "English"
++					}]);
++					//#region dsh-desktop: zh-Hant dictionaries derived from zh at registration
++		const S2T_CHARS = JSON.parse("{\"浏\": \"瀏\", \"览\": \"覽\", \"载\": \"載\", \"负\": \"負\", \"并\": \"並\", \"继\": \"繼\", \"续\": \"續\", \"删\": \"刪\", \"户\": \"戶\", \"叠\": \"疊\", \"标\": \"標\", \"轮\": \"輪\", \"运\": \"運\", \"败\": \"敗\", \"时\": \"時\", \"无\": \"無\", \"结\": \"結\", \"压\": \"壓\", \"缩\": \"縮\", \"条\": \"條\", \"历\": \"歷\", \"记\": \"記\", \"录\": \"錄\", \"约\": \"約\", \"开\": \"開\", \"钥\": \"鑰\", \"显\": \"顯\", \"参\": \"參\", \"数\": \"數\", \"输\": \"輸\", \"仅\": \"僅\", \"体\": \"體\", \"为\": \"為\", \"还\": \"還\", \"点\": \"點\", \"击\": \"擊\", \"图\": \"圖\", \"调\": \"調\", \"读\": \"讀\", \"试\": \"試\", \"区\": \"區\", \"统\": \"統\", \"对\": \"對\", \"话\": \"話\", \"须\": \"須\", \"训\": \"訓\", \"练\": \"練\", \"评\": \"評\", \"测\": \"測\", \"长\": \"長\", \"间\": \"間\", \"设\": \"設\", \"钟\": \"鍾\", \"识\": \"識\", \"阶\": \"階\", \"队\": \"隊\", \"发\": \"發\", \"会\": \"會\", \"凭\": \"憑\", \"证\": \"證\", \"将\": \"將\", \"当\": \"當\", \"创\": \"創\", \"暂\": \"暫\", \"确\": \"確\", \"认\": \"認\", \"状\": \"狀\", \"态\": \"態\", \"请\": \"請\", \"级\": \"級\", \"选\": \"選\", \"择\": \"擇\", \"项\": \"項\", \"来\": \"來\", \"称\": \"稱\", \"过\": \"過\", \"题\": \"題\", \"异\": \"異\", \"这\": \"這\", \"个\": \"個\", \"轨\": \"軌\", \"迹\": \"跡\", \"栏\": \"欄\", \"详\": \"詳\", \"宽\": \"寬\", \"写\": \"寫\", \"头\": \"頭\", \"该\": \"該\", \"于\": \"於\", \"据\": \"據\", \"环\": \"環\", \"断\": \"斷\", \"让\": \"讓\", \"着\": \"著\", \"余\": \"餘\", \"义\": \"義\", \"鉴\": \"鑑\", \"权\": \"權\", \"档\": \"檔\", \"码\": \"碼\", \"实\": \"實\", \"际\": \"際\", \"缓\": \"緩\", \"动\": \"動\", \"处\": \"處\", \"预\": \"預\", \"张\": \"張\", \"馈\": \"饋\", \"别\": \"別\", \"弃\": \"棄\", \"组\": \"組\", \"问\": \"問\", \"单\": \"單\", \"节\": \"節\", \"给\": \"給\", \"样\": \"樣\", \"视\": \"視\", \"荐\": \"薦\", \"触\": \"觸\", \"议\": \"議\", \"许\": \"許\", \"终\": \"終\", \"后\": \"後\", \"里\": \"裡\", \"复\": \"復\", \"总\": \"總\", \"跃\": \"躍\", \"词\": \"詞\", \"绝\": \"絕\", \"径\": \"徑\", \"换\": \"換\", \"台\": \"臺\", \"电\": \"電\", \"脑\": \"腦\", \"挂\": \"掛\", \"务\": \"務\", \"导\": \"導\", \"从\": \"從\", \"夹\": \"夾\", \"与\": \"與\", \"员\": \"員\", \"没\": \"沒\", \"风\": \"風\", \"险\": \"險\", \"愿\": \"願\", \"计\": \"計\", \"划\": \"劃\", \"损\": \"損\", \"坏\": \"壞\", \"内\": \"內\", \"获\": \"獲\", \"块\": \"塊\", \"潜\": \"潛\", \"驻\": \"駐\", \"审\": \"審\", \"准\": \"準\", \"编\": \"編\", \"辑\": \"輯\", \"应\": \"應\", \"杂\": \"雜\", \"机\": \"機\", \"册\": \"冊\", \"尽\": \"盡\", \"验\": \"驗\", \"关\": \"關\", \"键\": \"鍵\", \"装\": \"裝\", \"帮\": \"幫\", \"执\": \"執\", \"闭\": \"閉\", \"协\": \"協\", \"网\": \"網\", \"页\": \"頁\", \"检\": \"檢\", \"归\": \"歸\", \"启\": \"啟\", \"层\": \"層\", \"构\": \"構\", \"号\": \"號\", \"质\": \"質\", \"线\": \"線\", \"闲\": \"閒\", \"备\": \"備\", \"现\": \"現\", \"横\": \"橫\", \"进\": \"進\", \"补\": \"補\", \"说\": \"說\", \"敛\": \"斂\", \"边\": \"邊\", \"骤\": \"驟\", \"筛\": \"篩\", \"迟\": \"遲\", \"连\": \"連\", \"响\": \"響\", \"范\": \"範\", \"围\": \"圍\", \"适\": \"適\", \"厂\": \"廠\", \"双\": \"雙\", \"浅\": \"淺\", \"缀\": \"綴\", \"则\": \"則\", \"产\": \"產\", \"滚\": \"滾\", \"极\": \"極\", \"简\": \"簡\", \"询\": \"詢\", \"优\": \"優\", \"种\": \"種\", \"类\": \"類\", \"减\": \"減\", \"声\": \"聲\", \"访\": \"訪\", \"观\": \"觀\", \"听\": \"聽\", \"广\": \"廣\", \"础\": \"礎\", \"们\": \"們\", \"欢\": \"歡\", \"语\": \"語\", \"储\": \"儲\", \"侧\": \"側\", \"经\": \"經\", \"达\": \"達\", \"错\": \"錯\", \"误\": \"誤\", \"门\": \"門\", \"槛\": \"檻\", \"赖\": \"賴\", \"盖\": \"蓋\", \"占\": \"佔\", \"隐\": \"隱\", \"刚\": \"剛\", \"谱\": \"譜\", \"离\": \"離\", \"转\": \"轉\", \"临\": \"臨\", \"丢\": \"丟\", \"随\": \"隨\", \"报\": \"報\"}");
++		const S2T_PHRASES = JSON.parse("{\"5分钟\": \"5分鐘\", \"fixture 常驻审批（可答：批准/拒绝后消失）\": \"fixture 常駐審批（可答：批准/拒絕後消失）\", \"{\\\"5分钟\\\": \\\"5分鐘\\\", \\\"fixture 常驻审批（可答：批准/拒绝后消失）\\\": \\\"fixture 常駐審批（可答：批准/拒絕後消失）\\\", \\\"{n}分钟\\\": \\\"{n}分鐘\\\", \\\"会话“{name}”的操作\\\": \\\"會話「{name}」的操作\\\", \\\"其余字段在 settings.yaml 中，请直接编辑对应段。\\\": \\\"其餘欄位在 settings.yaml 中，請直接編輯對應段。\\\", \\\"回答被截断，已有输出保留在对话中。发送“继续”可让模型接着输出。\\\": \\\"回答被截斷，已有輸出保留在對話中。發送「繼續」可讓模型接著輸出。\\\", \\\"图片分辨率过大，请压缩后重试\\\": \\\"圖片解析度過大，請壓縮後重試\\\", \\\"在“{name}”中新建会话\\\": \\\"在「{name}」中新建會話\\\", \\\"复制\\\": \\\"複製\\\", \\\"复制成功\\\": \\\"複製成功\\\", \\\"复制自\\\": \\\"複製自\\\", \\\"复制预设\\\": \\\"複製預設\\\", \\\"复杂任务\\\": \\\"複雜任務\\\", \\\"将把“{name}”从工作区列表中移除。文件夹与会话记录会保留，其会话将显示在“未分组”下。\\\": \\\"將把「{name}」從工作區列表中移除。文件夾與會話記錄會保留，其會話將顯示在「未分組」下。\\\", \\\"工作区“{name}”的操作\\\": \\\"工作區「{name}」的操作\\\", \\\"已复制\\\": \\\"已複製\\\", \\\"已存在名为“{name}”的工作区。\\\": \\\"已存在名為「{name}」的工作區。\\\", \\\"整个预设会在本机复制一份。标识符将成为目录名，事后无法更改；其余内容之后直接在预设自己的文件里编辑。\\\": \\\"整個預設會在本機複製一份。標識符將成為目錄名，事後無法更改；其餘內容之後直接在預設自己的文件裡編輯。\\\", \\\"模型 ID 不能重复。\\\": \\\"模型 ID 不能重複。\\\", \\\"注册 Cordis 插件\\\": \\\"註冊 Cordis 插件\\\", \\\"用可运行结果尽快验证关键假设。\\\": \\\"用可運行結果儘快驗證關鍵假設。\\\", \\\"选择器中显示的名字，缺省用标识符\\\": \\\"選擇器中顯示的名字，預設用標識符\\\", \\\"预设加载失败，不能复制\\\": \\\"預設加載失敗，不能複製\\\", \\\"预设即一个会话的 Agent 所运行的插件组装 —— 它的工具、提示词与能力。复制一份既有预设改成自己的，或用「创造模式」让 Agent 帮你创建。\\\": \\\"預設即一個會話的 Agent 所運行的插件組裝 —— 它的工具、提示詞與能力。複製一份既有預設改成自己的，或用「創造模式」讓 Agent 幫你創建。\\\"}\": \"{\\\"5分鐘\\\": \\\"5分鐘\\\", \\\"fixture 常駐審批（可答：批准/拒絕後消失）\\\": \\\"fixture 常駐審批（可答：批准/拒絕後消失）\\\", \\\"{n}分鐘\\\": \\\"{n}分鐘\\\", \\\"會話「{name}」的操作\\\": \\\"會話「{name}」的操作\\\", \\\"其餘欄位在 settings.yaml 中，請直接編輯對應段。\\\": \\\"其餘欄位在 settings.yaml 中，請直接編輯對應段。\\\", \\\"回答被截斷，已有輸出保留在對話中。發送「繼續」可讓模型接著輸出。\\\": \\\"回答被截斷，已有輸出保留在對話中。發送「繼續」可讓模型接著輸出。\\\", \\\"圖片解析度過大，請壓縮後重試\\\": \\\"圖片解析度過大，請壓縮後重試\\\", \\\"在「{name}」中新建會話\\\": \\\"在「{name}」中新建會話\\\", \\\"複製\\\": \\\"複製\\\", \\\"複製成功\\\": \\\"複製成功\\\", \\\"複製自\\\": \\\"複製自\\\", \\\"複製預設\\\": \\\"複製預設\\\", \\\"複雜任務\\\": \\\"複雜任務\\\", \\\"將把「{name}」從工作區列表中移除。文件夾與會話記錄會保留，其會話將顯示在「未分組」下。\\\": \\\"將把「{name}」從工作區列表中移除。文件夾與會話記錄會保留，其會話將顯示在「未分組」下。\\\", \\\"工作區「{name}」的操作\\\": \\\"工作區「{name}」的操作\\\", \\\"已複製\\\": \\\"已複製\\\", \\\"已存在名為「{name}」的工作區。\\\": \\\"已存在名為「{name}」的工作區。\\\", \\\"整個預設會在本機複製一份。標識符將成為目錄名，事後無法更改；其餘內容之後直接在預設自己的文件裡編輯。\\\": \\\"整個預設會在本機複製一份。標識符將成為目錄名，事後無法更改；其餘內容之後直接在預設自己的文件裡編輯。\\\", \\\"模型 ID 不能重複。\\\": \\\"模型 ID 不能重複。\\\", \\\"註冊 Cordis 插件\\\": \\\"註冊 Cordis 插件\\\", \\\"用可運行結果儘快驗證關鍵假設。\\\": \\\"用可運行結果儘快驗證關鍵假設。\\\", \\\"選擇器中顯示的名字，預設用標識符\\\": \\\"選擇器中顯示的名字，預設用標識符\\\", \\\"預設加載失敗，不能複製\\\": \\\"預設加載失敗，不能複製\\\", \\\"預設即一個會話的 Agent 所運行的插件組裝 —— 它的工具、提示詞與能力。複製一份既有預設改成自己的，或用「創造模式」讓 Agent 幫你創建。\\\": \\\"預設即一個會話的 Agent 所運行的插件組裝 —— 它的工具、提示詞與能力。複製一份既有預設改成自己的，或用「創造模式」讓 Agent 幫你創建。\\\"}\", \"{n}分钟\": \"{n}分鐘\", \"会话“{name}”的操作\": \"會話「{name}」的操作\", \"其余字段在 settings.yaml 中，请直接编辑对应段。\": \"其餘欄位在 settings.yaml 中，請直接編輯對應段。\", \"回答被截断，已有输出保留在对话中。发送“继续”可让模型接着输出。\": \"回答被截斷，已有輸出保留在對話中。發送「繼續」可讓模型接著輸出。\", \"图片分辨率过大，请压缩后重试\": \"圖片解析度過大，請壓縮後重試\", \"在“{name}”中新建会话\": \"在「{name}」中新建會話\", \"复制\": \"複製\", \"复制成功\": \"複製成功\", \"复制自\": \"複製自\", \"复制预设\": \"複製預設\", \"复杂任务\": \"複雜任務\", \"将把“{name}”从工作区列表中移除。文件夹与会话记录会保留，其会话将显示在“未分组”下。\": \"將把「{name}」從工作區列表中移除。文件夾與會話記錄會保留，其會話將顯示在「未分組」下。\", \"工作区“{name}”的操作\": \"工作區「{name}」的操作\", \"已复制\": \"已複製\", \"已存在名为“{name}”的工作区。\": \"已存在名為「{name}」的工作區。\", \"已折叠\": \"已摺疊\", \"整个预设会在本机复制一份。标识符将成为目录名，事后无法更改；其余内容之后直接在预设自己的文件里编辑。\": \"整個預設會在本機複製一份。標識符將成為目錄名，事後無法更改；其餘內容之後直接在預設自己的文件裡編輯。\", \"模型 ID 不能重复。\": \"模型 ID 不能重複。\", \"注册 Cordis 插件\": \"註冊 Cordis 插件\", \"用可运行结果尽快验证关键假设。\": \"用可運行結果儘快驗證關鍵假設。\", \"选择器中显示的名字，缺省用标识符\": \"選擇器中顯示的名字，預設用標識符\", \"预设加载失败，不能复制\": \"預設加載失敗，不能複製\", \"预设即一个会话的 Agent 所运行的插件组装 —— 它的工具、提示词与能力。复制一份既有预设改成自己的，或用「创造模式」让 Agent 帮你创建。\": \"預設即一個會話的 Agent 所運行的插件組裝 —— 它的工具、提示詞與能力。複製一份既有預設改成自己的，或用「創造模式」讓 Agent 幫你創建。\"}");
++		function toTraditional(text) {
++			const override = S2T_PHRASES[text];
++			if (override !== void 0) return override;
++			let result = "";
++			for (const ch of text) result += S2T_CHARS[ch] ?? ch;
++			return result;
++		}
++		//#endregion
+ 		/**
+ 		* Dictionary registry plus locale preference. Lookup chain per key: the
+ 		* entry's namespace in the active locale -> that namespace's zh fallback ->
+@@ -1020,6 +1040,7 @@ window.__ModuleLoader__.load({
+ 				this.provisional = resolveInitialLocale();
+ 				this.snapshot = Object.freeze({
+ 					active: this.provisional,
++					explicit: false,
+ 					locales: LOCALES,
+ 					revision: 0
+ 				});
+@@ -1065,11 +1086,20 @@ window.__ModuleLoader__.load({
+ 			setLocale(id) {
+ 				const match = this.snapshot.locales.find((l) => l.id === id);
+ 				if (match === void 0) throw new Error(`locale "${id}" is not registered`);
+-				if (this.snapshot.active === match.id) return;
+-				this.publish(match.id, true);
++				if (this.snapshot.active === match.id && this.snapshot.explicit) return;
++				this.publish(match.id, this.snapshot.active !== match.id, true);
+ 				this.host?.set(LOCALE_PREFERENCE_FIELD, match.id);
+ 			}
+ 			/**
++			* Clear the durable preference and return to the browser-derived
++			* locale (the settings row's "Auto" option).
++			*/
++			setAuto() {
++				if (!this.snapshot.explicit) return;
++				this.publish(this.provisional, this.snapshot.active !== this.provisional, false);
++				this.host?.unset(LOCALE_PREFERENCE_FIELD);
++			}
++			/**
+ 			* Adopt the scope's accepted durable selection without writing it back; an
+ 			* absent selection returns to the browser-derived locale.
+ 			* @param host - the constructor-narrowed scope driving this adoption.
+@@ -1077,12 +1107,15 @@ window.__ModuleLoader__.load({
+ 			adopt(host) {
+ 				const section = host.getSnapshot().value;
+ 				if (section === void 0) return;
++				const explicit = section.preference != null;
+ 				const target = section.preference ?? this.provisional;
+-				if (this.snapshot.active === target) return;
+-				this.publish(target, true);
++				if (this.snapshot.active === target && this.snapshot.explicit === explicit) return;
++				this.publish(target, this.snapshot.active !== target, explicit);
+ 			}
+ 			register(ns, localeOrDicts, dict) {
+ 				const pairs = typeof localeOrDicts === "string" ? [[localeOrDicts, dict]] : Object.entries(localeOrDicts);
++				const zhPair = pairs.find(([locale]) => locale === "zh");
++				if (zhPair && !pairs.some(([locale]) => locale === "zh-Hant")) pairs.push(["zh-Hant", mapValues(zhPair[1], (value) => typeof value === "string" ? toTraditional(value) : value)]);
+ 				let locales = this.dicts.get(ns);
+ 				if (!locales) {
+ 					locales = /* @__PURE__ */ new Map();
+@@ -1129,9 +1162,10 @@ window.__ModuleLoader__.load({
+ 			* registration-heavy boot cannot storm event listeners (which may
+ 			* re-register slots in response).
+ 			*/
+-			publish(active, localeChanged) {
++			publish(active, localeChanged, explicit = this.snapshot.explicit) {
+ 				this.snapshot = Object.freeze({
+ 					active,
++					explicit,
+ 					locales: this.snapshot.locales,
+ 					revision: this.snapshot.revision + 1
+ 				});
+@@ -1162,7 +1196,12 @@ window.__ModuleLoader__.load({
+ 		function detectBrowserLocale() {
+ 			if (typeof window === "undefined") return void 0;
+ 			for (const tag of [...navigator.languages ?? [], navigator.language]) {
+-				const primary = tag.toLowerCase().split("-")[0];
++				const lower = tag.toLowerCase();
++				const primary = lower.split("-")[0];
++				if (primary === "zh") {
++					if (/(^|-)hant\b|[-_](tw|hk|mo)\b/.test(lower)) return "zh-Hant";
++					return "zh";
++				}
+ 				const match = LOCALES.find((locale) => locale.id === primary);
+ 				if (match) return match.id;
+ 			}
+@@ -1195,7 +1234,7 @@ window.__ModuleLoader__.load({
+ 			const store = createLanguageRowStore();
+ 			let bound;
+ 			const sync = (snapshot) => {
+-				bound?.sync(snapshot.active, snapshot.locales.map((l) => ({
++				bound?.sync(snapshot.active, snapshot.explicit, snapshot.locales.map((l) => ({
+ 					id: l.id,
+ 					label: l.label
+ 				})), snapshot.revision);
+@@ -1205,7 +1244,8 @@ window.__ModuleLoader__.load({
+ 				bound = actions;
+ 				sync(locale.getLocale());
+ 				return { setLocale: (id) => {
+-					locale.setLocale(id);
++					if (id === "auto") locale.setAuto();
++					else locale.setLocale(id);
+ 				} };
+ 			};
+ 			ctx.slots.inject("settings.general.item", () => ctx.slots.register({
+diff --git a/node_modules/@deepseek-ai/dsh-client-locale/lib/index.js b/node_modules/@deepseek-ai/dsh-client-locale/lib/index.js
+index fb55e50..1629663 100644
+--- a/node_modules/@deepseek-ai/dsh-client-locale/lib/index.js
++++ b/node_modules/@deepseek-ai/dsh-client-locale/lib/index.js
+@@ -7,7 +7,7 @@ const LOCALE_SETTINGS_NAMESPACE = "locale";
+ /** Field carrying an explicit locale selection; absence delegates to the browser. */
+ const LOCALE_PREFERENCE_FIELD = "preference";
+ /** Locale identifiers shipped by the browser client. */
+-const LOCALE_IDS = ["zh", "en"];
++const LOCALE_IDS = ["zh", "zh-Hant", "en"];
+ /** Durable locale schema; also the wire envelope the browser scope validates against. */
+ const LocaleSettingsSchema = z.object({ [LOCALE_PREFERENCE_FIELD]: z.union([...LOCALE_IDS]).required(false) });
+ //#endregion
+diff --git a/node_modules/@deepseek-ai/dsh-client-locale/lib/types/client/index.d.ts b/node_modules/@deepseek-ai/dsh-client-locale/lib/types/client/index.d.ts
+index 974f7bd..2684799 100644
+--- a/node_modules/@deepseek-ai/dsh-client-locale/lib/types/client/index.d.ts
++++ b/node_modules/@deepseek-ai/dsh-client-locale/lib/types/client/index.d.ts
+@@ -36,6 +36,8 @@ export interface LocaleDefinition {
+ export interface LocaleSnapshot {
+     /** Active locale id. */
+     active: LocaleId;
++    /** Whether the active locale is an explicit user choice (false = browser auto-detection). */
++    explicit: boolean;
+     /** Selectable locales in display order. */
+     locales: readonly LocaleDefinition[];
+     /** Monotonic change counter (registry or active changes). */
+@@ -113,6 +115,11 @@ export declare class LocaleRuntime {
+      * @param id - a registered locale id; unknown ids throw.
+      */
+     setLocale(id: string): void;
++    /**
++     * Clear the durable preference and return to the browser-derived locale
++     * (the settings row's "Auto" option).
++     */
++    setAuto(): void;
+     /**
+      * Adopt the scope's accepted durable selection without writing it back; an
+      * absent selection returns to the browser-derived locale.
+diff --git a/node_modules/@deepseek-ai/dsh-client-locale/lib/types/locale-settings.d.ts b/node_modules/@deepseek-ai/dsh-client-locale/lib/types/locale-settings.d.ts
+index 3eb75a4..021174f 100644
+--- a/node_modules/@deepseek-ai/dsh-client-locale/lib/types/locale-settings.d.ts
++++ b/node_modules/@deepseek-ai/dsh-client-locale/lib/types/locale-settings.d.ts
+@@ -5,7 +5,7 @@ export declare const LOCALE_SETTINGS_NAMESPACE = "locale";
+ /** Field carrying an explicit locale selection; absence delegates to the browser. */
+ export declare const LOCALE_PREFERENCE_FIELD = "preference";
+ /** Locale identifiers shipped by the browser client. */
+-export declare const LOCALE_IDS: readonly ["zh", "en"];
++export declare const LOCALE_IDS: readonly ["zh", "zh-Hant", "en"];
+ /** Shipped locale identifier. */
+ export type LocaleId = typeof LOCALE_IDS[number];
+ /** Durable locale section shared by the Host schema and the browser scope. */

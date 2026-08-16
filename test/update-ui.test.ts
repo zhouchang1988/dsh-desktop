@@ -35,6 +35,7 @@ describe('desktop update card visibility', () => {
 
   it('formats localized progress copy', () => {
     expect(updateMessage(downloading, 'zh')).toBe('正在下载更新 42%')
+    expect(updateMessage(downloading, 'zh-Hant')).toBe('正在下載更新 42%')
     expect(updateMessage(downloading, 'en')).toBe('Downloading update 42%')
   })
 })

@@ -1,5 +1,5 @@
 diff --git a/node_modules/@deepseek-ai/dsh-client-ui-agent-preset/lib/client.js b/node_modules/@deepseek-ai/dsh-client-ui-agent-preset/lib/client.js
-index 9f92ac8..69a0970 100644
+index 9f92ac8..873c5eb 100644
 --- a/node_modules/@deepseek-ai/dsh-client-ui-agent-preset/lib/client.js
 +++ b/node_modules/@deepseek-ai/dsh-client-ui-agent-preset/lib/client.js
 @@ -64,7 +64,30 @@ window.__ModuleLoader__.load({
@@ -41,7 +41,7 @@ index 9f92ac8..69a0970 100644
 -			deleting: "正在删除…"
 +			deleting: "正在删除…",
 +			importPreset: "导入",
-+			awesomePreset: "Awesome preset",
++			awesomePreset: "Awesome 预设",
 +			searchPresets: "搜索模式…",
 +			recentPresets: "最近使用",
 +			noMatchingPresets: "没有匹配的模式",

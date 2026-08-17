@@ -1,0 +1,63 @@
+diff --git a/node_modules/@deepseek-ai/dsh-client-ui-input-trigger/lib/client.js b/node_modules/@deepseek-ai/dsh-client-ui-input-trigger/lib/client.js
+index 086f3b7..6aca378 100644
+--- a/node_modules/@deepseek-ai/dsh-client-ui-input-trigger/lib/client.js
++++ b/node_modules/@deepseek-ai/dsh-client-ui-input-trigger/lib/client.js
+@@ -700,6 +700,19 @@ window.__ModuleLoader__.load({
+ 		function optionId(source, index) {
+ 			return `dsh-slash-option-${source}-${index}`;
+ 		}
++		//#region dsh-desktop: locale-aware candidate descriptions
++		/**
++		* Render a candidate's description through the menu dictionary when the
++		* host-supplied text has a registered translation
++		* (`item.<source>.<name>`); unknown or dynamic entries keep the
++		* host-supplied description unchanged.
++		*/
++		function itemDescription(t, source, item) {
++			const key = "item." + source + "." + item.name;
++			const translated = t(key);
++			return translated === key ? item.description : translated;
++		}
++		//#endregion
+ 		/**
+ 		* Render the candidate menu overlay entry.
+ 		* @param props - injected face (the menu store and the pick route); `t` rides the standard locale seat.
+@@ -770,7 +783,7 @@ window.__ModuleLoader__.load({
+ 								}),
+ 								item.description !== void 0 && (0, react_jsx_runtime.jsx)("span", {
+ 									className: MenuView_module_css_default.itemDescription,
+-									children: item.description
++									children: itemDescription(t, group.source, item)
+ 								})
+ 							]
+ 						}, `${group.source}:${item.name}`);
+@@ -791,7 +804,13 @@ window.__ModuleLoader__.load({
+ 			"skill": "技能",
+ 			"subagent": "子智能体",
+ 			"loading": "正在加载…",
+-			"suggestions.aria": "触发候选建议"
++			"suggestions.aria": "触发候选建议",
++			"item.command.compact": "压缩较早的对话历史",
++			"item.command.permission": "切换权限预设（沙箱模式 + 审批策略）",
++			"item.command.export": "下载本会话的日志（ZIP 压缩包）",
++			"item.command.goal": "设置或查看长任务的目标",
++			"item.command.feedback": "记录对本会话的反馈",
++			"item.command.plan": "进入或退出计划模式"
+ 		};
+ 		/** English dictionary, checked complete against the zh key set. */
+ 		const en = {
+@@ -799,7 +818,13 @@ window.__ModuleLoader__.load({
+ 			"skill": "Skills",
+ 			"subagent": "Subagents",
+ 			"loading": "Loading…",
+-			"suggestions.aria": "Trigger suggestions"
++			"suggestions.aria": "Trigger suggestions",
++			"item.command.compact": "Compact older conversation history",
++			"item.command.permission": "Switch the permission preset (sandbox mode + approval policy)",
++			"item.command.export": "Download this Session log as a ZIP archive",
++			"item.command.goal": "set or view the goal for a long-running task",
++			"item.command.feedback": "record feedback about this session",
++			"item.command.plan": "Enter or leave plan mode"
+ 		};
+ 		//#endregion
+ 		//#region lib/types/client/index.js

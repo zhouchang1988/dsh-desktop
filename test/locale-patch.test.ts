@@ -12,7 +12,7 @@ function bundlePath(pkg: string): string {
   return path.join(projectRoot, 'node_modules', '@deepseek-ai', pkg, 'lib', 'client.js')
 }
 
-const localePatch = '@deepseek-ai+dsh-client-locale+0.1.0-rc.7.patch'
+const localePatch = '@deepseek-ai+dsh-client-locale+0.1.0-rc.8.patch'
 
 describe('DSH Desktop language selector', () => {
   it('offers Auto, 简体中文, 繁體中文 and English', async () => {
@@ -83,7 +83,7 @@ describe('DSH Desktop language selector', () => {
 describe('zh dictionary mixed-language fixes', () => {
   it('translates the Cordis panel zh copy', async () => {
     const patch = await readFile(
-      patchPath('@deepseek-ai+dsh-client-ui-cordis+0.1.0-rc.7.patch'),
+      patchPath('@deepseek-ai+dsh-client-ui-cordis+0.1.0-rc.8.patch'),
       'utf8'
     )
 
@@ -95,7 +95,7 @@ describe('zh dictionary mixed-language fixes', () => {
 
   it('translates the reasoning-effort default label', async () => {
     const patch = await readFile(
-      patchPath('@deepseek-ai+dsh-client-ui-model-selection+0.1.0-rc.7.patch'),
+      patchPath('@deepseek-ai+dsh-client-ui-model-selection+0.1.0-rc.8.patch'),
       'utf8'
     )
 
@@ -104,7 +104,7 @@ describe('zh dictionary mixed-language fixes', () => {
 
   it('translates the provider ID label in the models settings', async () => {
     const patch = await readFile(
-      patchPath('@deepseek-ai+dsh-client-ui-settings-models+0.1.0-rc.7.patch'),
+      patchPath('@deepseek-ai+dsh-client-ui-settings-models+0.1.0-rc.8.patch'),
       'utf8'
     )
 
@@ -113,7 +113,7 @@ describe('zh dictionary mixed-language fixes', () => {
 
   it('translates the Awesome preset entry zh copy', async () => {
     const patch = await readFile(
-      patchPath('@deepseek-ai+dsh-client-ui-agent-preset+0.1.0-rc.7.patch'),
+      patchPath('@deepseek-ai+dsh-client-ui-agent-preset+0.1.0-rc.8.patch'),
       'utf8'
     )
 
@@ -122,7 +122,7 @@ describe('zh dictionary mixed-language fixes', () => {
 
   it('localizes the trajectory panel through tPanel', async () => {
     const patch = await readFile(
-      patchPath('@deepseek-ai+dsh-client-ui-trajectory+0.1.0-rc.7.patch'),
+      patchPath('@deepseek-ai+dsh-client-ui-trajectory+0.1.0-rc.8.patch'),
       'utf8'
     )
 

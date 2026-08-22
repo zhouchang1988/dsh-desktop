@@ -1,5 +1,5 @@
 diff --git a/node_modules/@deepseek-ai/dsh-client-locale/lib/client.js b/node_modules/@deepseek-ai/dsh-client-locale/lib/client.js
-index 6b25606..a9f7828 100644
+index e44455a..9f25437 100644
 --- a/node_modules/@deepseek-ai/dsh-client-locale/lib/client.js
 +++ b/node_modules/@deepseek-ai/dsh-client-locale/lib/client.js
 @@ -807,7 +807,7 @@ window.__ModuleLoader__.load({
@@ -69,7 +69,7 @@ index 6b25606..a9f7828 100644
  					d.options = options;
  					d.revision = revision;
  				} }
-@@ -981,14 +987,28 @@ window.__ModuleLoader__.load({
+@@ -989,14 +995,28 @@ window.__ModuleLoader__.load({
  		const COMMON_NS = "common";
  		/** Namespace owning this feature's settings-row copy. */
  		const SETTINGS_NS = "settings.locale";
@@ -104,9 +104,9 @@ index 6b25606..a9f7828 100644
 +		}
 +		//#endregion
  		/**
- 		* Dictionary registry plus locale preference. Lookup chain per key: the
- 		* entry's namespace in the active locale -> that namespace's zh fallback ->
-@@ -1020,6 +1040,7 @@ window.__ModuleLoader__.load({
+ 		* `<html lang>` tag per shipped locale. The locale id is the app's own
+ 		* vocabulary (primary subtag); the document attribute wants a BCP 47 tag,
+@@ -1050,6 +1070,7 @@ window.__ModuleLoader__.load({
  				this.provisional = resolveInitialLocale();
  				this.snapshot = Object.freeze({
  					active: this.provisional,
@@ -114,12 +114,11 @@ index 6b25606..a9f7828 100644
  					locales: LOCALES,
  					revision: 0
  				});
-@@ -1065,11 +1086,20 @@ window.__ModuleLoader__.load({
+@@ -1103,10 +1124,20 @@ window.__ModuleLoader__.load({
  			setLocale(id) {
  				const match = this.snapshot.locales.find((l) => l.id === id);
  				if (match === void 0) throw new Error(`locale "${id}" is not registered`);
--				if (this.snapshot.active === match.id) return;
--				this.publish(match.id, true);
+-				if (this.snapshot.active !== match.id) this.publish(match.id, true);
 +				if (this.snapshot.active === match.id && this.snapshot.explicit) return;
 +				this.publish(match.id, this.snapshot.active !== match.id, true);
  				this.host?.set(LOCALE_PREFERENCE_FIELD, match.id);
@@ -137,7 +136,7 @@ index 6b25606..a9f7828 100644
  			* Adopt the scope's accepted durable selection without writing it back; an
  			* absent selection returns to the browser-derived locale.
  			* @param host - the constructor-narrowed scope driving this adoption.
-@@ -1077,12 +1107,15 @@ window.__ModuleLoader__.load({
+@@ -1114,12 +1145,15 @@ window.__ModuleLoader__.load({
  			adopt(host) {
  				const section = host.getSnapshot().value;
  				if (section === void 0) return;
@@ -155,7 +154,7 @@ index 6b25606..a9f7828 100644
  				let locales = this.dicts.get(ns);
  				if (!locales) {
  					locales = /* @__PURE__ */ new Map();
-@@ -1129,9 +1162,10 @@ window.__ModuleLoader__.load({
+@@ -1166,9 +1200,10 @@ window.__ModuleLoader__.load({
  			* registration-heavy boot cannot storm event listeners (which may
  			* re-register slots in response).
  			*/
@@ -167,7 +166,7 @@ index 6b25606..a9f7828 100644
  					locales: this.snapshot.locales,
  					revision: this.snapshot.revision + 1
  				});
-@@ -1162,7 +1196,12 @@ window.__ModuleLoader__.load({
+@@ -1199,7 +1234,12 @@ window.__ModuleLoader__.load({
  		function detectBrowserLocale() {
  			if (typeof window === "undefined") return void 0;
  			for (const tag of [...navigator.languages ?? [], navigator.language]) {
@@ -181,16 +180,16 @@ index 6b25606..a9f7828 100644
  				const match = LOCALES.find((locale) => locale.id === primary);
  				if (match) return match.id;
  			}
-@@ -1195,7 +1234,7 @@ window.__ModuleLoader__.load({
- 			const store = createLanguageRowStore();
+@@ -1233,7 +1273,7 @@ window.__ModuleLoader__.load({
  			let bound;
  			const sync = (snapshot) => {
+ 				syncDocumentLanguage(snapshot.active);
 -				bound?.sync(snapshot.active, snapshot.locales.map((l) => ({
 +				bound?.sync(snapshot.active, snapshot.explicit, snapshot.locales.map((l) => ({
  					id: l.id,
  					label: l.label
  				})), snapshot.revision);
-@@ -1205,7 +1244,8 @@ window.__ModuleLoader__.load({
+@@ -1244,7 +1284,8 @@ window.__ModuleLoader__.load({
  				bound = actions;
  				sync(locale.getLocale());
  				return { setLocale: (id) => {
@@ -214,7 +213,7 @@ index fb55e50..1629663 100644
  const LocaleSettingsSchema = z.object({ [LOCALE_PREFERENCE_FIELD]: z.union([...LOCALE_IDS]).required(false) });
  //#endregion
 diff --git a/node_modules/@deepseek-ai/dsh-client-locale/lib/types/client/index.d.ts b/node_modules/@deepseek-ai/dsh-client-locale/lib/types/client/index.d.ts
-index 974f7bd..2684799 100644
+index 45a2b83..63e266f 100644
 --- a/node_modules/@deepseek-ai/dsh-client-locale/lib/types/client/index.d.ts
 +++ b/node_modules/@deepseek-ai/dsh-client-locale/lib/types/client/index.d.ts
 @@ -36,6 +36,8 @@ export interface LocaleDefinition {
@@ -226,7 +225,7 @@ index 974f7bd..2684799 100644
      /** Selectable locales in display order. */
      locales: readonly LocaleDefinition[];
      /** Monotonic change counter (registry or active changes). */
-@@ -113,6 +115,11 @@ export declare class LocaleRuntime {
+@@ -129,6 +131,11 @@ export declare class LocaleRuntime {
       * @param id - a registered locale id; unknown ids throw.
       */
      setLocale(id: string): void;

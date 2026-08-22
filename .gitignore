@@ -12,3 +12,6 @@ build/icon-1024.png
 .env.*
 !.env.example
 .venv-i18n/
+.coaligne/
+.coaligneignore
+

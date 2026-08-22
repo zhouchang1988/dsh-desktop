@@ -8,7 +8,7 @@ function patchPath(name: string): string {
   return path.join(projectRoot, 'patches', name)
 }
 
-const inputTriggerPatch = '@deepseek-ai+dsh-client-ui-input-trigger+0.1.0-rc.7.patch'
+const inputTriggerPatch = '@deepseek-ai+dsh-client-ui-input-trigger+0.1.0-rc.8.patch'
 
 describe('slash command menu localization', () => {
   it('translates candidate descriptions through the menu dictionary', async () => {

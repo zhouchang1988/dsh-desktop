@@ -1,8 +1,8 @@
 diff --git a/node_modules/@deepseek-ai/dsh-client-ui-input-trigger/lib/client.js b/node_modules/@deepseek-ai/dsh-client-ui-input-trigger/lib/client.js
-index 086f3b7..6aca378 100644
+index df53f4f..69c083f 100644
 --- a/node_modules/@deepseek-ai/dsh-client-ui-input-trigger/lib/client.js
 +++ b/node_modules/@deepseek-ai/dsh-client-ui-input-trigger/lib/client.js
-@@ -700,6 +700,19 @@ window.__ModuleLoader__.load({
+@@ -752,6 +752,19 @@ window.__ModuleLoader__.load({
  		function optionId(source, index) {
  			return `dsh-slash-option-${source}-${index}`;
  		}
@@ -22,7 +22,7 @@ index 086f3b7..6aca378 100644
  		/**
  		* Render the candidate menu overlay entry.
  		* @param props - injected face (the menu store and the pick route); `t` rides the standard locale seat.
-@@ -770,7 +783,7 @@ window.__ModuleLoader__.load({
+@@ -826,7 +839,7 @@ window.__ModuleLoader__.load({
  								}),
  								item.description !== void 0 && (0, react_jsx_runtime.jsx)("span", {
  									className: MenuView_module_css_default.itemDescription,
@@ -30,8 +30,8 @@ index 086f3b7..6aca378 100644
 +									children: itemDescription(t, group.source, item)
  								})
  							]
- 						}, `${group.source}:${item.name}`);
-@@ -791,7 +804,13 @@ window.__ModuleLoader__.load({
+ 						})] }, optionId(group.source, index));
+@@ -847,7 +860,13 @@ window.__ModuleLoader__.load({
  			"skill": "技能",
  			"subagent": "子智能体",
  			"loading": "正在加载…",
@@ -46,7 +46,7 @@ index 086f3b7..6aca378 100644
  		};
  		/** English dictionary, checked complete against the zh key set. */
  		const en = {
-@@ -799,7 +818,13 @@ window.__ModuleLoader__.load({
+@@ -855,7 +874,13 @@ window.__ModuleLoader__.load({
  			"skill": "Skills",
  			"subagent": "Subagents",
  			"loading": "Loading…",

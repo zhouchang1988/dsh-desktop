@@ -1,8 +1,8 @@
 diff --git a/node_modules/@deepseek-ai/dsh-client-ui-permission-presets/lib/client.js b/node_modules/@deepseek-ai/dsh-client-ui-permission-presets/lib/client.js
-index 8106409..5dfc6c5 100644
+index 01b9a01..f6aafd4 100644
 --- a/node_modules/@deepseek-ai/dsh-client-ui-permission-presets/lib/client.js
 +++ b/node_modules/@deepseek-ai/dsh-client-ui-permission-presets/lib/client.js
-@@ -30,6 +30,18 @@ window.__ModuleLoader__.load({
+@@ -29,6 +29,18 @@ window.__ModuleLoader__.load({
  		function displayPermissionPreset(value, name) {
  			return value === "danger-full-access" ? "Full access" : displayPresetName(name);
  		}
@@ -21,7 +21,7 @@ index 8106409..5dfc6c5 100644
  		//#endregion
  		//#region \0dsh-css:/home/runner/work/deepseek-harness/deepseek-harness/packages/client/ui-permission-presets/src/client/PermissionRow.module.css.mjs
  		const css = ".oY77xG_row{border-bottom:1px solid var(--dsw-alias-border-l2);align-items:center;gap:8px;padding:16px 0;display:flex}.oY77xG_rowText{flex-direction:column;flex:1;gap:4px;min-width:0;padding-right:48px;display:flex}.oY77xG_title{color:var(--dsw-alias-label-primary);font-size:14px;font-weight:400;line-height:22px}.oY77xG_desc{color:var(--dsw-alias-label-tertiary);font-size:12px;font-weight:400;line-height:18px}.oY77xG_selector{background:var(--dsw-alias-bg-module-platform);height:36px;font:inherit;color:var(--dsw-alias-label-primary);cursor:pointer;border:none;border-radius:18px;align-items:center;gap:12px;padding:0 14px;font-size:14px;line-height:22px;display:inline-flex}.oY77xG_selector:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover)}.oY77xG_selector:disabled{cursor:default}.oY77xG_chevron{flex:none}";
-@@ -78,7 +90,7 @@ window.__ModuleLoader__.load({
+@@ -77,7 +89,7 @@ window.__ModuleLoader__.load({
  			if (state.status === "unavailable") return null;
  			const selected = state.options.find((option) => option.id === state.currentValue);
  			const busy = state.status === "loading" || state.status === "saving" || confirmingFullAccess;
@@ -30,7 +30,7 @@ index 8106409..5dfc6c5 100644
  			const description = state.error ?? t("description");
  			return (0, react_jsx_runtime.jsxs)(react_jsx_runtime.Fragment, { children: [(0, react_jsx_runtime.jsxs)("div", {
  				className: PermissionRow_module_css_default.row,
-@@ -99,7 +111,7 @@ window.__ModuleLoader__.load({
+@@ -98,7 +110,7 @@ window.__ModuleLoader__.load({
  					},
  					items: state.options.map((option) => ({
  						id: option.id,
@@ -39,7 +39,7 @@ index 8106409..5dfc6c5 100644
  					})),
  					selectedId: state.currentValue,
  					onSelect: (id) => {
-@@ -160,7 +172,11 @@ window.__ModuleLoader__.load({
+@@ -159,7 +171,11 @@ window.__ModuleLoader__.load({
  			"confirm.description": "启用 Full access 后，新会话将减少确认步骤，并且可以直接执行更多操作，包括敏感操作、文件修改或外部命令。仅建议在你信任后续任务时使用。",
  			"confirm.acknowledge": "我已了解风险，并愿意继续",
  			"confirm.cancel": "取消",
@@ -52,7 +52,7 @@ index 8106409..5dfc6c5 100644
  		};
  		/** English dictionary, checked complete against the zh key set. */
  		const en = {
-@@ -172,7 +188,11 @@ window.__ModuleLoader__.load({
+@@ -171,7 +187,11 @@ window.__ModuleLoader__.load({
  			"confirm.description": "Full access lets new sessions reduce confirmation steps and perform more actions directly, including sensitive operations, file changes, or external commands. Only use it when you trust subsequent tasks.",
  			"confirm.acknowledge": "I understand the risks and want to continue",
  			"confirm.cancel": "Cancel",
@@ -65,7 +65,7 @@ index 8106409..5dfc6c5 100644
  		};
  		/** Simplified Chinese dictionary for the current-session popup gate. */
  		const accessZh = {
-@@ -180,7 +200,10 @@ window.__ModuleLoader__.load({
+@@ -179,7 +199,10 @@ window.__ModuleLoader__.load({
  			"confirm.description": "启用 Full access 后，agent 将减少确认步骤，并且可以直接执行更多操作，包括敏感操作、文件修改或外部命令。仅建议在你信任当前任务时使用。",
  			"confirm.acknowledge": "我已了解风险，并愿意继续",
  			"confirm.cancel": "取消",
@@ -77,7 +77,7 @@ index 8106409..5dfc6c5 100644
  		};
  		/** English dictionary for the current-session popup gate. */
  		const accessEn = {
-@@ -188,7 +211,10 @@ window.__ModuleLoader__.load({
+@@ -187,7 +210,10 @@ window.__ModuleLoader__.load({
  			"confirm.description": "Full access reduces confirmation steps and lets the agent perform more actions directly, including sensitive operations, file changes, or external commands. Only use it when you trust the current task.",
  			"confirm.acknowledge": "I understand the risks and want to continue",
  			"confirm.cancel": "Cancel",
@@ -89,8 +89,8 @@ index 8106409..5dfc6c5 100644
  		};
  		//#endregion
  		//#region lib/types/client/settings-store.js
-@@ -349,6 +375,18 @@ window.__ModuleLoader__.load({
- 			"remote"
+@@ -374,6 +400,18 @@ window.__ModuleLoader__.load({
+ 			"settingsSchema"
  		];
  		const ACCESS_NS = "permission.access";
 +		//#region dsh-desktop: locale-aware /permission popup labels
@@ -108,7 +108,7 @@ index 8106409..5dfc6c5 100644
  		/** Read one session's current permissions projection value (undefined = capability absent). */
  		function selectOf(session) {
  			return session?.projections.faceOf("permissions").getSnapshot();
-@@ -357,7 +395,7 @@ window.__ModuleLoader__.load({
+@@ -382,7 +420,7 @@ window.__ModuleLoader__.load({
  		function optionsOf(value, t) {
  			return value.options.filter((option) => option.value !== "custom").map((option) => ({
  				id: option.value,
@@ -117,7 +117,7 @@ index 8106409..5dfc6c5 100644
  				...option.description !== void 0 ? { detail: option.description } : {},
  				...option.value === value.currentValue ? { active: true } : {},
  				...option.value === "danger-full-access" ? { confirmation: {
-@@ -383,13 +421,19 @@ window.__ModuleLoader__.load({
+@@ -408,13 +446,19 @@ window.__ModuleLoader__.load({
  					"confirm.description": accessZh["confirm.description"],
  					"confirm.acknowledge": accessZh["confirm.acknowledge"],
  					"confirm.cancel": accessZh["confirm.cancel"],

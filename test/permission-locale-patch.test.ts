@@ -12,8 +12,8 @@ function bundlePath(pkg: string): string {
   return path.join(projectRoot, 'node_modules', '@deepseek-ai', pkg, 'lib', 'client.js')
 }
 
-const conversationPatch = '@deepseek-ai+dsh-client-ui-conversation+0.1.0-rc.7.patch'
-const permissionPresetsPatch = '@deepseek-ai+dsh-client-ui-permission-presets+0.1.0-rc.7.patch'
+const conversationPatch = '@deepseek-ai+dsh-client-ui-conversation+0.1.0-rc.8.patch'
+const permissionPresetsPatch = '@deepseek-ai+dsh-client-ui-permission-presets+0.1.0-rc.8.patch'
 
 describe('permission preset label localization', () => {
   it('translates the in-session permission select labels', async () => {
